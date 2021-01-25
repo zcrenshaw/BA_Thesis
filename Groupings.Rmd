@@ -1,0 +1,67 @@
+---
+title: "Groupings"
+author: "Zack Crenshaw"
+date: "1/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(knitr)
+
+```
+
+```{r, echo = FALSE}
+
+features = read.csv("alphabet_features_numeric.csv")
+features_full = read.csv("alphabet_features.csv")
+key = read.csv("alphabet_features_key.csv")
+
+```
+
+
+The key to the numerical values in the graphs that follow:
+```{r, echo = FALSE}
+
+kable(key)
+
+ggplot(features, aes(x = nonSel, y = reorder(Letter,nonSel))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1) + ggtitle("Non Selected Fingers") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = Joints, y = reorder(Letter,Joints))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Joints") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = Base, y = reorder(Letter,Base))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Base") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = nonBase, y = reorder(Letter,nonBase))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Non Base") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = Thumb, y = reorder(Letter,Thumb))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Thumb") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = Quant, y = reorder(Letter,Quant))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Quantity") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = POR, y = reorder(Letter,POR))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Point of Reference") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = SecFing, y = reorder(Letter,SecFing))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1) + ggtitle("Secondary Selected Fingers") + xlab("Node Value") + ylab("Letter")  
+
+ggplot(features, aes(x = SecThumb, y = reorder(Letter,SecThumb))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Secondary Thumb") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = SecQuant, y = reorder(Letter,SecQuant))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Secondary Quantity") + xlab("Node Value") + ylab("Letter") 
+
+ggplot(features, aes(x = SecPOR, y = reorder(Letter,SecPOR))) + geom_dotplot(binaxis='y', stackdir='center', binwidth = 1)  + ggtitle("Secondary Point of Reference") + xlab("Node Value") + ylab("Letter") 
+
+
+```
+
+Remaining Questions:
+
+* Is there a way of determining distance in the feature space?
+** I ask because I don't think my current represenation of the tree nodes will translate well to a multi-dimensional Euclidean space, so I can't cluster in this space.
+** I am interested in doing so because then I can compare how close the different letters are overall, not just in each individual dimension
+
+Continuing Work:
+* Train model on all 24 letters
+* Conduct the following tasks:
+** Variance testing
+** Clustering
+** Image Generation
+* Construct CAT-VAE

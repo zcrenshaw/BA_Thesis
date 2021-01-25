@@ -1,0 +1,6 @@
+﻿Value,nonSel,Joints,Base,nonBase,Thumb,Quant,POR,SecSel,SecThumb,SecQuant,SecPOR
+0,None,None,None,None,None,None,None,None,None,None,None
+1,Flexed,Flexed,Present,Present,Strongly Opposed,One,Radial,Flexed,Opposed,One,Radial
+2,Extended,Spread,,,Opposed,One>All,Ulnar,Extended,Unopposed,One>All,Ulnar
+3,,Stacked,,,Unopposed,All>One,Mid,Spread,,All>One,Mid
+4,,Crossed,,,Strongly Unopposed,All,,,,All,

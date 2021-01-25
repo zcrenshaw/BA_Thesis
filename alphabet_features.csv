@@ -1,0 +1,34 @@
+﻿Letter,nonSel,Joints,Base,nonBase,Thumb,Quant,POR,SecFing,SecThumb,SecQuant,SecPOR
+a,None,flexed,Flexed,Flexed,unopposed,(>all),(>radial),None,None,None,None
+b,(>flexed),None,Unflexed,Unflexed,None,(>all),(>radial),None,None,None,None
+c,None,None,Flexed,Flexed,(>opposed),(>all),(>radial),None,None,None,None
+d,(>extended),flexed,Flexed,Flexed,(>opposed),all > one,ulnar,None,None,None,None
+d',flexed,flexed,Flexed,Flexed,(>opposed),one,mid,(>extended),None,one,(>radial)
+d'',None,flexed,Flexed,Flexed,(>opposed),all>one,ulnar,(>extended),None,one,(>radial)
+e,None,flexed,Unflexed,Flexed,(>opposed),(>all),(>radial),None,None,None,None
+f,(>extended),flexed,Flexed,Flexed,(>opposed),one,(>radial),None,None,None,None
+f',None,flexed,Flexed,Flexed,(>opposed),one,(>radial),spread,None,all>one,ulnar
+g,(>flexed),None,Unflexed,Unflexed,opposed,one,(>radial),None,None,None,None
+g',(>flexed),None,Unflexed,Unflexed,(>unopposed),one,(>radial),None,None,None,None
+h,(>flexed),None,Unflexed,Unflexed,None,one > all,(>radial),None,None,None,None
+i,(>flexed),None,Unflexed,Unflexed,None,one,ulnar,None,None,None,None
+j,(>flexed),None,Unflexed,Unflexed,None,one,ulnar,None,None,None,None
+k,(>flexed),stacked,Unflexed,Unflexed,None,one > all,(>radial),(>extended),unopposed,None,None
+l,(>flexed),None,Unflexed,Unflexed,(>unopposed),one,(>radial),None,None,None,None
+m,flexed,flexed,Flexed,Flexed,None,all > one,(>radial),None,None,None,None
+m',flexed,flexed,Flexed,Unflexed,None,all > one,(>radial),None,None,None,None
+n,flexed,flexed,Flexed,Flexed,None,one > all,(>radial),None,None,None,None
+n',flexed,flexed,Flexed,Unflexed,None,one > all,(>radial),None,None,None,None
+o,None,flexed,Flexed,Flexed,(>opposed),(>all),(>radial),None,None,None,None
+p,(>flexed),stacked,Unflexed,Unflexed,None,one > all,(>radial),(>extended),unopposed,None,None
+q,(>flexed),None,Unflexed,Unflexed,opposed,one,(>radial),None,None,None,None
+r,(>flexed),crossed,Unflexed,Unflexed,None,one > all,(>radial),None,None,None,None
+s,None,flexed,Flexed,Flexed,(>opposed),(>all),(>radial),None,None,None,None
+t,flexed,flexed,Flexed,Flexed,None,one,(>radial),None,None,None,None
+t',flexed,flexed,Flexed,Unflexed,None,one,(>radial),None,None,None,None
+u,(>flexed),None,Unflexed,Unflexed,None,one > all,(>radial),None,None,None,None
+v,(>flexed),spread,Unflexed,Unflexed,None,one > all,(>radial),None,None,None,None
+w,(>flexed),spread,Unflexed,Unflexed,None,all > one,(>radial),None,None,None,None
+x,flexed,flexed,Unflexed,Flexed,None,one,(>radial),None,None,None,None
+y,(>flexed),None,Unflexed,Unflexed,(>unopposed),one,ulnar,None,None,None,None
+z,(>flexed),None,Unflexed,Unflexed,None,one,(>radial),None,None,None,None
