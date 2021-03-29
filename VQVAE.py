@@ -1,34 +1,13 @@
 '''
 Zack Crenshaw
-Last updated: November 29, 2020
 VQ-VAE
 '''
-
-from __future__ import print_function
-from datetime import date
-
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from scipy.signal import savgol_filter
-from PIL import Image
-
-import umap
-import os
-import sys
-import time
-import random
 import math
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
-import torch.optim as optim
-
-import torchvision.datasets as datasets
 import torchvision.transforms as T
-from torchvision.utils import make_grid, save_image
 
 '''VQ-VAE'''
 #This is code from https://github.com/zalandoresearch/pytorch-vq-vae
@@ -75,6 +54,9 @@ class VectorQuantizer(nn.Module):
         quantized = inputs + (quantized - inputs).detach()
         avg_probs = torch.mean(encodings, dim=0)
         perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
+
+                # For pulling out encodings later
+        encodings = encodings.view(batch_size,-1,num_embeddings)
 
         # convert quantized from BHWC -> BCHW
         return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
@@ -142,6 +124,9 @@ class VectorQuantizerEMA(nn.Module):
         quantized = inputs + (quantized - inputs).detach()
         avg_probs = torch.mean(encodings, dim=0)
         perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
+
+        # For pulling out encodings later
+        encodings = encodings.view(encoding_indices.shape[0],-1,num_embeddings)
 
         # convert quantized from BHWC -> BCHW
         return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
@@ -241,34 +226,101 @@ class Decoder(nn.Module):
 
         return self._conv_trans_2(x)
 
+class FC(nn.Module):
+    def __init__(self, channels):
+        super(FC, self).__init__()
+
+        self._linear = nn.Linear(channels,channels)
+
+    def forward(self, inputs):
+      inputs = inputs.permute(0, 2, 3, 1).contiguous()
+      outputs = self._linear(inputs)
+      return outputs.permute(0, 3, 1, 2).contiguous()
+
+class Resample(nn.Module):
+    def __init__(self, to_size):
+        super(Resample, self).__init__()
+
+        self._trans = nn.Upsample(to_size)
+
+    def forward(self, inputs):
+      x = self._trans(inputs)
+      return x
+
 class VQ_VAE(nn.Module):
+    """
+    num_hiddens: Number of hidden variables in the Conv2d part of the Encoder
+    num_residual_layers: Number of ResidualStack in the Encoder
+    num_residual_hiddens: Number of hidden variables in the ResidualStack
+    num_embeddings: Number of vectors in the Embedding
+    embedding_dim: Length of vectors in the Embedding
+    commitment_cost: Commitment cost
+    decay: decay for EMA
+    shrink_factor: reduce latent space to 2**(-shrink_factor) times the original
+    fc: Add fully connected layer before VQ
+
+    """
     def __init__(self, num_hiddens, num_residual_layers, num_residual_hiddens,
-                 num_embeddings, embedding_dim, commitment_cost, decay=0):
+                 num_embeddings, embedding_dim, commitment_cost, decay=0,shrink_factor=0, fc=False):
         super(VQ_VAE, self).__init__()
 
-        self._encoder = Encoder(3, num_hiddens,
+        self._encoder = Encoder(1, num_hiddens,
                                 num_residual_layers,
                                 num_residual_hiddens)
         self._pre_vq_conv = nn.Conv2d(in_channels=num_hiddens,
                                       out_channels=embedding_dim,
                                       kernel_size=1,
                                       stride=1)
+
         if decay > 0.0:
             self._vq_vae = VectorQuantizerEMA(num_embeddings, embedding_dim,
                                               commitment_cost, decay)
         else:
             self._vq_vae = VectorQuantizer(num_embeddings, embedding_dim,
                                            commitment_cost)
+
         self._decoder = Decoder(embedding_dim,
                                 num_hiddens,
                                 num_residual_layers,
                                 num_residual_hiddens)
 
+        if shrink_factor > 0:
+          self._downsample = nn.Conv2d(in_channels=embedding_dim,
+                                      out_channels=embedding_dim,
+                                      kernel_size=2**(shrink_factor + 1),
+                                      stride=2**(shrink_factor),
+                                      padding =2**(shrink_factor - 1))
+
+          self._upsample = nn.ConvTranspose2d(in_channels=embedding_dim,
+                                              out_channels=embedding_dim,
+                                              kernel_size=2**(shrink_factor + 1),
+                                              stride=2**(shrink_factor),
+                                              padding =2**(shrink_factor - 1))
+        else:
+          self._downsample = nn.Conv2d(in_channels=embedding_dim,
+                                      out_channels=embedding_dim,
+                                      kernel_size=1,
+                                      stride=1)
+
+          self._upsample = nn.ConvTranspose2d(in_channels=embedding_dim,
+                                              out_channels=embedding_dim,
+                                              kernel_size=1,
+                                              stride=1)
+
+        if fc:
+          self._FC = FC(embedding_dim)
+        else:
+          self._FC = None
+
     def forward(self, x):
         z = self._encoder(x)
         z = self._pre_vq_conv(z)
-        loss, quantized, perplexity, _ = self._vq_vae(z)
+        z = self._downsample(z)
+        if self._FC is not None:
+          z = self._FC(z)
+        loss, quantized, perplexity, encodings = self._vq_vae(z)
+        quantized = self._upsample(quantized)
         x_recon = self._decoder(quantized)
 
-        return loss, x_recon, perplexity, quantized
 
+        return loss, x_recon, perplexity, encodings
