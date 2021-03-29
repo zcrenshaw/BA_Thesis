@@ -61,7 +61,7 @@ def make_parser():
                         , action="store_true"
                         , help="add fully connected layer before VQ")
     parser.add_argument("-n", "--num_updates", type=int
-                        , default=10000
+                        , default=20000
                         , help="number of training updates")
 
     return parser

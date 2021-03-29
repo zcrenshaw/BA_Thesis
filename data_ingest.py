@@ -8,6 +8,45 @@ import torchvision.datasets as datasets
 import torchvision.transforms as T
 
 import utils
+import hd5py
+
+def AllSignersDataset(Dataset):
+    def __init__(self, mat_paths,transform):
+        self.images = torch.empty((128,128,1))
+        self.labels = torch.empty((1,1))
+
+        for path in (mat_paths):
+            data = h5py.File(path,'r')
+            self.images = torch.cat(self.images,torch.from_numpy(data['X']))
+            self.labels = torch.cat(self.images,torch.from_numpy(data['L']))
+
+        # BHWC -> BCHW
+        self.images = transform(self.images.transpose((0,3, 1, 2)))
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self,idx):
+        i = self.images[idx]
+        l = self.labels[idx]
+        return i,l
+
+def OneSignerDataset(Dataset):
+    def __init__(self, mat_path):
+        data = h5py.File(mat_path,'r')
+        self.images = torch.from_numpy(data['X'])
+        self.labels = torch.from_numpy(data['L'])
+
+        # BHWC -> BCHW
+        self.images = self.images.transpose((0,3, 1, 2))
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self,idx):
+        i = self.images[idx]
+        l = self.labels[idx]
+        return i,l
 
 def all_signers():
 
@@ -17,11 +56,15 @@ def all_signers():
     data_path = data_root + folder + dataset
 
     data_transform = T.Compose([
-                        T.ToTensor(),
                         T.Normalize((0.5), (1.0)),
                         ])
-    data = datasets.ImageFolder(root= path, transform=data_transform)
+    mat_paths = [ data_root + 'image128_color0_andy.mat'
+                 , data_root + 'image128_color0_drucie.mat'
+                 , data_root + 'image128_color0_rita.mat'
+                 , data_root + 'image128_color0_robin.mat']
 
+    data = AllSignersDataset(mat_paths,data_transform)
+    
     return make_loaders(data)
 
 
