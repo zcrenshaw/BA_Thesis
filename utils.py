@@ -5,8 +5,6 @@ import numpy as np
 import torch.nn.functional as F
 from collections import defaultdict
 
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 import numpy as np
 import pandas as pd
 from PIL import Image

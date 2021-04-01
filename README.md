@@ -10,7 +10,8 @@
 
 ## Python
 
-  * run_vqvae.py: training and testing for VQ-VAE models
+  * train_vqvae.py: training for VQ-VAE models
+  * analyze_vqvae.py: testing and analysis of VQ_VAE models
   * vqvae.py: source code for VQ-VAE
   * utils.py: basic classes and functions
 

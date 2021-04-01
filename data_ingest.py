@@ -21,7 +21,7 @@ def AllSignersDataset(Dataset):
             self.labels = torch.cat(self.images,torch.from_numpy(data['L']))
 
         # BHWC -> BCHW
-        self.images = transform(self.images.transpose((0,3, 1, 2)))
+        self.images = transform(self.images.permute((0,3, 1, 2)))
 
     def __len__(self):
         return len(self.images)
@@ -38,7 +38,7 @@ def OneSignerDataset(Dataset):
         self.labels = torch.from_numpy(data['L'])
 
         # BHWC -> BCHW
-        self.images = self.images.transpose((0,3, 1, 2))
+        self.images = self.images.permute((0,3, 1, 2))
 
     def __len__(self):
         return len(self.images)
@@ -51,20 +51,18 @@ def OneSignerDataset(Dataset):
 def all_signers():
 
     data_root = '/share/data/asl-data/fsvid/'
-    folder = ''
-    dataset = ''
-    data_path = data_root + folder + dataset
 
-    data_transform = T.Compose([
-                        T.Normalize((0.5), (1.0)),
-                        ])
     mat_paths = [ data_root + 'image128_color0_andy.mat'
                  , data_root + 'image128_color0_drucie.mat'
                  , data_root + 'image128_color0_rita.mat'
                  , data_root + 'image128_color0_robin.mat']
 
+    data_transform = T.Compose([
+                        T.Normalize((0.5), (1.0)),
+                        ])
+
     data = AllSignersDataset(mat_paths,data_transform)
-    
+
     return make_loaders(data)
 
 
