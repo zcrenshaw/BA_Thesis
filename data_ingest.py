@@ -8,7 +8,7 @@ import torchvision.datasets as datasets
 import torchvision.transforms as T
 
 import utils
-import hd5py
+import h5py
 
 def AllSignersDataset(Dataset):
     def __init__(self, mat_paths,transform):
