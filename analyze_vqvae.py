@@ -9,8 +9,6 @@ import pandas as pd
 from scipy.signal import savgol_filter
 from PIL import Image
 
-import umap
-import os
 import sys
 import time
 import random
@@ -179,16 +177,32 @@ def cosine(data):
       diff[x][y] = torch.mean(F.cosine_similarity(all_examples[x],all_examples[y],dim=0))
   return diff
 
+def show(img,name):
+    npimg = img.numpy()
+    plt.figure(figsize=(24,6))
+    fig = plt.imshow(np.transpose(npimg, (1,2,0)), interpolation='nearest',cmap='gray')
+    fig.axes.get_xaxis().set_visible(False)
+    fig.axes.get_yaxis().set_visible(False)
+    plt.savefig(name)
+
+def show_recon(examples,model,device,name):
+    show(make_grid(examples.cpu().data+0.5),"./images/{}_originals.png".format(name))
+
+    examples = examples.to(device)
+    _, examples_recon, _, _ = model(examples)
+    show(make_grid(examples_recon.cpu().data+0.5),"./images/{}_recon.png".format(name))
+    
 
 def main():
     ''' Load Model and Data '''
-
+ 
+    batch_size = 32
     model = load_model(device)
-    _ , _ , test_loader, subset = all_signers()
+    _ , _ , test_loader, subset = all_signers(batch_size)
 
     ''' Get Encodings and Examples'''
 
-    num_examples = 1000
+    num_examples = 100
 
     encodings, examples, all_examples = get_data(model, test_loader, 24, num_examples)
 

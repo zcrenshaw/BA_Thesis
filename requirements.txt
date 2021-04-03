@@ -1,0 +1,9 @@
+torch
+torchvision
+matplotlib
+numpy
+scipy
+six
+pandas
+future
+h5py

@@ -126,7 +126,7 @@ class VectorQuantizerEMA(nn.Module):
         perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
 
         # For pulling out encodings later
-        encodings = encodings.view(encoding_indices.shape[0],-1,num_embeddings)
+        encodings = encodings.view(encoding_indices.shape[0],-1,self._num_embeddings)
 
         # convert quantized from BHWC -> BCHW
         return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
@@ -212,7 +212,7 @@ class Decoder(nn.Module):
                                                 stride=2, padding=1)
 
         self._conv_trans_2 = nn.ConvTranspose2d(in_channels=num_hiddens//2,
-                                                out_channels=3,
+                                                out_channels=1,
                                                 kernel_size=4,
                                                 stride=2, padding=1)
 

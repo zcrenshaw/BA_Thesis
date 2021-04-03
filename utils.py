@@ -30,6 +30,7 @@ import torchvision.transforms as T
 from torchvision.utils import make_grid, save_image
 
 from vqvae import VQ_VAE
+from zennet import ZenNet
 
 class SquarePad:
   def __call__(self, image):
@@ -59,13 +60,13 @@ def make_parser():
                         , action="store_true"
                         , help="add fully connected layer before VQ")
     parser.add_argument("-n", "--num_updates", type=int
-                        , default=20000
+                        , default=10000
                         , help="number of training updates")
 
     return parser
 
 
-def save_data(model,recon_error,perplexity,v_recon_error, v_perplexity, num_training_updates,args):
+def save_data(training_loss,validation_loss,num_training_updates,args):
     L = args.num_latents
     D = args.dim_embedding
     K = args.num_embedding
@@ -75,8 +76,7 @@ def save_data(model,recon_error,perplexity,v_recon_error, v_perplexity, num_trai
     # Save csv with stats
     stats = {
         "Update": range(num_training_updates),
-        "Reconstruction Error": recon_error,
-        "Perplexity": perplexity,
+        "Training Loss": training_loss
         }
     csv_name = name + ".csv"
     pd.DataFrame(data=stats).to_csv('./csvs/' + csv_name)
@@ -84,9 +84,8 @@ def save_data(model,recon_error,perplexity,v_recon_error, v_perplexity, num_trai
     v_name = "L{}_D{}_K{}_{}_{}_validation".format(L,D,K,FC,num_training_updates)
 
     v_stats = {
-        "Update": range(len(v_perplexity)),
-        "Reconstruction Error": v_recon_error,
-        "Perplexity": v_perplexity,
+        "Update": range(len(validation_loss)),
+        "Validation Loss": validation_loss,
         }
     v_csv_name = v_name + ".csv"
     pd.DataFrame(data=v_stats).to_csv('./csvs/' + v_csv_name)
@@ -117,7 +116,6 @@ def make_VQVAE():
 
     args = make_parser().parse_args()
 
-    batch_size = 32
     num_training_updates = args.num_updates
     commitment_cost = 0.25
     decay = 0.99
@@ -139,6 +137,14 @@ def make_VQVAE():
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, amsgrad=False)
 
     return model, optimizer, args
+
+
+def make_ZenNet():
+    model = ZenNet()
+    optimizer = optim.Adam(model.parameters(), lr=1e-4, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
+
+    return model, optimizer
+
 
 def load_model(device):
     args = make_parser().parse_args()
@@ -176,3 +182,14 @@ def load_model(L,D,K,FC,i,device):
     pretrained_model.eval()
 
     return model
+
+def gig(x):
+    return round(x/(10**9),2)
+
+def memrep():
+    t = torch.cuda.get_device_properties(0).total_memory
+    r = torch.cuda.memory_reserved(0) 
+    a = torch.cuda.memory_allocated(0)
+    f = r-a  # free inside reserved
+    print("Total: {}\nAllocated: {}\nFree: {}".format(gig(t),gig(a),gig(f)))
+
