@@ -44,7 +44,7 @@ def train(model,optimizer,training_loader,validation_loader,num_training_updates
     model.train()
     train_loss = []
     validation_loss = []
-    for i in range(num_training_updates):
+    for i in range(num_training_updates+1):
         (data, _) = next(iter(training_loader))
         data = data.to(device)
         optimizer.zero_grad()

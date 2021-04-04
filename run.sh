@@ -7,7 +7,12 @@
 #SBATCH --partition=speech-gpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-python train_vqvae.py -L 32 -D 64 -K 512 -n 100000
+python train_vqvae.py -L 16 -D 64 -K 512 
+python train_vqvae.py -L 8 -D 64 -K 512
+python train_vqvae.py -L 4 -D 64 -K 512
+python train_vqvae.py -L 2 -D 64 -K 512
+
+
 
 
 

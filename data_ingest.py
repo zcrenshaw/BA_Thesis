@@ -11,18 +11,40 @@ import utils
 import h5py
 import numpy as np
 
+
 class AllSignersDataset(Dataset):
-    def __init__(self, mat_paths,transform):
-	return None
+
+    def __init__(self, h5_paths, transform):
+        self.h5_paths = h5_paths
+        self.labels = torch.empty((1,1)).float()
+        self.images = torch.empty((1,1,128,128)).float()
+        for p in self.h5_paths:
+        	data = h5py.File(p, 'r')
+		self.labels = torch.cat((self.labels,torch.from_numpy(np.array(data['L'])).float()))
+		self.images = torch.cat((self.images,torch.from_numpy(np.array(data['X'])).view(-1,1,128,128).float()))
+        self.length = len(self.labels)
+    	self.transform = transform
+
+    def __getitem__(self, index): #to enable indexing
+	label = self.labels[index]
+	
+	# ignore non letter inputs, and letters J (9) and Z (25)
+	while (label < 0 or label > 24 or label == 9):
+		index += 1
+		if index >= self.length:
+			index = 0
+		label = self.labels[index]
+
+	image = self.images[index]
+
+        image = self.transform(image)
+        return (
+                image,
+                label,
+        )
 
     def __len__(self):
-        return len(self.images)
-
-    def __getitem__(self,idx):
-        i = self.images[idx]
-        l = self.labels[idx]
-        return i,l
-
+        return self.length
 
 # adapted from https://stackoverflow.com/questions/59190493/trouble-crating-dataset-and-dataloader-for-hdf5-file-in-pytorch-not-enough-valu
 
@@ -69,8 +91,8 @@ def all_signers(batch_size):
     data_transform = T.Compose([
                         T.Normalize((0.5,), (1.0,)),
                         ])
-    data = OneSignerDataset(mat_paths[0],data_transform)
-#    data = AllSignersDataset(mat_paths,data_transform)
+    #data = OneSignerDataset(mat_paths[0],data_transform)
+    data = AllSignersDataset(mat_paths,data_transform)
     loaders = make_loaders(data,batch_size)
     return loaders
 
